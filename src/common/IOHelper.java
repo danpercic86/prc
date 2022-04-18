@@ -1,40 +1,46 @@
 package common;
 
 import java.io.Closeable;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
-import java.net.Socket;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
 
 public abstract class IOHelper implements Closeable {
-    protected DataOutputStream out;
-    protected DataInputStream in;
-    protected Socket socket;
+    protected final DatagramSocket socket;
+    protected final int port;
+    public DatagramPacket packet;
+    protected byte[] buffer = new byte[512];
 
-    protected IOHelper(Socket socket) {
+    protected IOHelper(DatagramSocket socket, int port) {
         this.socket = socket;
-        init();
+        this.port = port;
     }
 
-    void init() {
+    public void send(String message, InetAddress address, int port) {
+        var bytes = message.getBytes();
         try {
-            in = new DataInputStream(socket.getInputStream());
-            out = new DataOutputStream(socket.getOutputStream());
+            socket.send(new DatagramPacket(bytes, bytes.length, address, port));
         } catch (IOException e) {
             System.out.println(e);
         }
     }
 
-    @Override
-    public void close() {
+    public String read() {
+        packet = new DatagramPacket(buffer, buffer.length);
         try {
-            socket.close();
-            in.close();
-            out.close();
+            socket.receive(packet);
+            return new String(packet.getData(), 0, packet.getLength());
         } catch (IOException e) {
-            System.out.println("Eroare la închidere!");
+            System.out.println(e);
         }
 
+        return "Eroare la citire!";
+    }
+
+    @Override
+    public void close() {
+        socket.close();
         System.out.println("Connection closed");
     }
 }

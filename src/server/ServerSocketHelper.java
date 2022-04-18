@@ -3,48 +3,27 @@ package server;
 import common.IOHelper;
 
 import java.io.IOException;
-import java.net.InetSocketAddress;
-import java.net.Socket;
+import java.net.DatagramSocket;
 
 public class ServerSocketHelper extends IOHelper {
-    public ServerSocketHelper(Socket socket) {
-        super(socket);
-        System.out.println("New socket started");
+    public ServerSocketHelper(int port) throws IOException {
+        super(new DatagramSocket(port), port);
+        System.out.println("Server started");
     }
 
-    public void write(String string) {
-        try {
-            out.writeUTF(string);
-        } catch (IOException e) {
-            System.out.println(e);
-        }
+    public String getMessage() {
+        return new String(packet.getData(), 0, packet.getLength());
     }
 
-    public int readInt() {
-        try {
-            return in.readInt();
-        } catch (IOException e) {
-            System.out.println(e);
-        }
-
-        return 0;
-    }
-
-    public double readDouble() {
-        try {
-            return in.readDouble();
-        } catch (IOException e) {
-            System.out.println(e);
-        }
-
-        return 0;
+    public void write(String message) {
+        this.send(message, packet.getAddress(), packet.getPort());
     }
 
     public String getClientIp() {
-        return ((InetSocketAddress) socket.getRemoteSocketAddress()).getAddress().toString().replace("/", "");
+        return packet.getAddress().toString().replace("/", "");
     }
 
     public int getClientPort() {
-        return ((InetSocketAddress) socket.getRemoteSocketAddress()).getPort();
+        return packet.getPort();
     }
 }
