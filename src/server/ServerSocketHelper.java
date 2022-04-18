@@ -4,12 +4,12 @@ import common.IOHelper;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.net.ServerSocket;
+import java.net.Socket;
 
-public class SocketServer extends IOHelper {
-    public SocketServer(int port) throws IOException {
-        super(new ServerSocket(port).accept());
-        System.out.println("Server started");
+public class ServerSocketHelper extends IOHelper {
+    public ServerSocketHelper(Socket socket) {
+        super(socket);
+        System.out.println("New socket started");
     }
 
     public void write(String string) {

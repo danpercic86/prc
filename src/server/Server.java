@@ -1,69 +1,33 @@
 package server;
 
-import common.Operation;
-import common.OperationType;
-
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import java.net.ServerSocket;
 
 public class Server {
-    static final SocketServer socket;
-    static final List<Operation> operations = new ArrayList<>();
+    static final ServerSocket socket;
 
     static {
         try {
-            socket = new SocketServer(9797);
+            socket = new ServerSocket(9797);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
     public static void main(String[] args) {
-        int option = socket.readInt();
-
-        while (option != 0) {
-            System.out.println(option);
-
-            if (option == 5) {
-                sendOperationInfo();
-            } else {
-                switch (option) {
-                    case 1 -> addOperation(OperationType.ADD);
-                    case 2 -> addOperation(OperationType.SUBTRACT);
-                    case 3 -> addOperation(OperationType.MULTIPLY);
-                    case 4 -> addOperation(OperationType.DIVIDE);
-                    default -> socket.write("Această opțiune nu există!");
-                }
+        System.out.println("Server started");
+        try {
+            while (true) {
+                createThreadWhenConnectionAccepted();
             }
-            option = socket.readInt();
-        }
-
-        socket.close();
-    }
-
-    static void sendOperationInfo() {
-        int operationNumber = socket.readInt();
-        Operation operation = operations.stream().filter(o -> o.getId() == operationNumber).findFirst().orElse(null);
-
-        if (operation != null) {
-            socket.write(operation.toString());
-        } else {
-            socket.write("Nu există această operație!");
+        } catch (IOException e) {
+            System.out.println("Server stopped.");
         }
     }
 
-    static void addOperation(OperationType operationType) {
-        var id = operations.size() + 1;
-        var left = socket.readDouble();
-        var right = socket.readDouble();
-        var clientIp = socket.getClientIp();
-        var clientPort = socket.getClientPort();
-        var operation = new Operation(id, left, right, operationType, clientIp, clientPort);
-
-        operations.add(operation);
-        socket.write(String.valueOf(operation.getResult()));
-        
-        System.out.println(operation);
+    private static void createThreadWhenConnectionAccepted() throws IOException {
+        var acceptedConnection = socket.accept();
+        var serverSocketHelper = new ServerSocketHelper(acceptedConnection);
+        new Thread(new OperationsHandler(serverSocketHelper)).start();
     }
 }
