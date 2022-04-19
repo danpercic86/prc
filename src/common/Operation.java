@@ -7,16 +7,14 @@ public class Operation {
     private final OperationType operationType;
     private final double result;
     private final String clientIp;
-    private final int clientPort;
 
-    public Operation(long id, double leftHandSide, double rightHandSide, OperationType operationType, String clientIp, int clientPort) {
+    public Operation(long id, double leftHandSide, double rightHandSide, OperationType operationType, String clientIp) {
         this.id = id;
         this.leftHandSide = leftHandSide;
         this.rightHandSide = rightHandSide;
         this.operationType = operationType;
         this.result = operationType.compute(leftHandSide, rightHandSide);
         this.clientIp = clientIp;
-        this.clientPort = clientPort;
     }
 
     public long getId() {
@@ -29,6 +27,6 @@ public class Operation {
 
     @Override
     public String toString() {
-        return "[" + id + "] " + leftHandSide + " " + operationType.getSign() + " " + rightHandSide + " = " + result + " (" + clientIp + ":" + clientPort + ")";
+        return "[" + id + "] " + leftHandSide + " " + operationType.getSign() + " " + rightHandSide + " = " + result + " (" + clientIp + ")";
     }
 }

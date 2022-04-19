@@ -1,64 +1,54 @@
 package server;
 
+import common.IOperationsHandler;
 import common.Operation;
 import common.OperationType;
 
-public class OperationsHandler implements Runnable {
-    private final ServerSocketHelper socket;
+import java.rmi.RemoteException;
+import java.rmi.server.ServerNotActiveException;
+import java.rmi.server.UnicastRemoteObject;
 
-    public OperationsHandler(ServerSocketHelper socket) {
-        this.socket = socket;
+public class OperationsHandler extends UnicastRemoteObject implements IOperationsHandler {
+
+    public OperationsHandler() throws RemoteException {
+        super();
     }
 
-    @Override
-    public void run() {
-        int option = socket.readInt();
-
-        while (option != 0) {
-            System.out.println(option);
-
-            if (option == 5) {
-                sendOperationInfo();
-            } else synchronized (this) {
-                selectOperationToAdd(option);
-            }
-
-            option = socket.readInt();
-        }
-
-        socket.close();
-    }
-
-    private void selectOperationToAdd(int option) {
+    public synchronized String performOperation(int option, double left, double right) {
         switch (option) {
-            case 1 -> addOperation(OperationType.ADD);
-            case 2 -> addOperation(OperationType.SUBTRACT);
-            case 3 -> addOperation(OperationType.MULTIPLY);
-            case 4 -> addOperation(OperationType.DIVIDE);
-            default -> socket.write("Această opțiune nu există!");
+            case 1 -> {
+                return addOperation(left, right, OperationType.ADD);
+            }
+            case 2 -> {
+                return addOperation(left, right, OperationType.SUBTRACT);
+            }
+            case 3 -> {
+                return addOperation(left, right, OperationType.MULTIPLY);
+            }
+            case 4 -> {
+                return addOperation(left, right, OperationType.DIVIDE);
+            }
+            default -> {
+                return "Această opțiune nu există!";
+            }
         }
     }
 
-    void addOperation(OperationType operationType) {
-        var left = socket.readDouble();
-        var right = socket.readDouble();
-        var clientIp = socket.getClientIp();
-        var clientPort = socket.getClientPort();
-
-        var operation = Database.add(left, right, operationType, clientIp, clientPort);
-        socket.write(String.valueOf(operation.getResult()));
-
+    private String addOperation(double left, double right, OperationType operationType) {
+        var host = "";
+        try {
+            host = getClientHost();
+            System.out.println(host);
+        } catch (ServerNotActiveException e) {
+            return "Eroare la obținerea adresei IP a clientului!";
+        }
+        var operation = Database.add(left, right, operationType, host);
         System.out.println(operation);
+        return String.valueOf(operation.getResult());
     }
 
-    void sendOperationInfo() {
-        int operationNumber = socket.readInt();
+    public String getOperationInfo(int operationNumber) {
         Operation operation = Database.get(operationNumber);
-
-        if (operation != null) {
-            socket.write(operation.toString());
-        } else {
-            socket.write("Nu există această operație!");
-        }
+        return operation != null ? operation.toString() : "Această operatie nu există!";
     }
 }

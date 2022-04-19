@@ -1,18 +1,15 @@
 package client;
 
-import java.io.IOException;
+import common.IOperationsHandler;
+
+import java.net.MalformedURLException;
+import java.rmi.Naming;
+import java.rmi.NotBoundException;
+import java.rmi.RemoteException;
 import java.util.Scanner;
 
 public class Client {
-    public static final SocketClient socket;
-
-    static {
-        try {
-            socket = new SocketClient("127.0.0.1", 9797);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
+    private static IOperationsHandler handler;
 
     static int getMenuOption() {
         System.out.println("MENIU: ");
@@ -28,37 +25,42 @@ public class Client {
         return in.nextInt();
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws MalformedURLException, NotBoundException, RemoteException {
+        handler = (IOperationsHandler) Naming.lookup("rmi://localhost:1099/operations");
         int option = getMenuOption();
 
         while (option != 0) {
-            socket.write(option);
-
             switch (option) {
-                case 1, 2, 3, 4 -> {
-                    System.out.println("Introduceți numerele:");
-
-                    Scanner in = new Scanner(System.in);
-                    socket.writeDouble(in.nextDouble());
-                    socket.writeDouble(in.nextDouble());
-
-                    System.out.println(socket.read());
-                }
-                case 5 -> {
-                    System.out.println("Introduceți numărul operației:");
-
-                    Scanner in = new Scanner(System.in);
-                    socket.write(in.nextInt());
-
-                    System.out.println(socket.read());
-                }
+                case 1, 2, 3, 4 -> handleOperation(option);
+                case 5 -> printOperationInfo();
                 default -> System.out.println("Această opțiune nu există!");
             }
 
             option = getMenuOption();
         }
+    }
 
-        socket.write(0);
-        socket.close();
+    private static void printOperationInfo() {
+        System.out.println("Introduceți numărul operației:");
+
+        Scanner in = new Scanner(System.in);
+        try {
+            var result = handler.getOperationInfo(in.nextInt());
+            System.out.println(result);
+        } catch (RemoteException e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    private static void handleOperation(int option) {
+        System.out.println("Introduceți numerele:");
+
+        Scanner in = new Scanner(System.in);
+        try {
+            var result = handler.performOperation(option, in.nextDouble(), in.nextDouble());
+            System.out.println(result);
+        } catch (RemoteException e) {
+            System.out.println(e.getMessage());
+        }
     }
 }

@@ -1,33 +1,14 @@
 package server;
 
-import java.io.IOException;
-import java.net.ServerSocket;
+import java.rmi.RemoteException;
+import java.rmi.registry.LocateRegistry;
+import java.rmi.registry.Registry;
 
 public class Server {
-    static final ServerSocket socket;
-
-    static {
-        try {
-            socket = new ServerSocket(9797);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    public static void main(String[] args) {
+    public static void main(String[] args) throws RemoteException {
+        OperationsHandler handler = new OperationsHandler();
+        Registry registry = LocateRegistry.createRegistry(1099);
         System.out.println("Server started");
-        try {
-            while (true) {
-                createThreadWhenConnectionAccepted();
-            }
-        } catch (IOException e) {
-            System.out.println("Server stopped.");
-        }
-    }
-
-    private static void createThreadWhenConnectionAccepted() throws IOException {
-        var acceptedConnection = socket.accept();
-        var serverSocketHelper = new ServerSocketHelper(acceptedConnection);
-        new Thread(new OperationsHandler(serverSocketHelper)).start();
+        registry.rebind("operations", handler);
     }
 }
