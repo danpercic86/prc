@@ -3,18 +3,18 @@ package server;
 import common.IOperationsHandler;
 import common.Operation;
 import common.OperationType;
+import jakarta.jms.*;
 
-import java.rmi.RemoteException;
-import java.rmi.server.ServerNotActiveException;
-import java.rmi.server.UnicastRemoteObject;
+public class OperationsHandler implements IOperationsHandler, MessageListener {
 
-public class OperationsHandler extends UnicastRemoteObject implements IOperationsHandler {
+    private final QueueSession session;
 
-    public OperationsHandler() throws RemoteException {
+    public OperationsHandler(QueueSession session) {
         super();
+        this.session = session;
     }
 
-    public synchronized String performOperation(int option, double left, double right) {
+    public String performOperation(int option, double left, double right) {
         switch (option) {
             case 1 -> {
                 return addOperation(left, right, OperationType.ADD);
@@ -35,14 +35,7 @@ public class OperationsHandler extends UnicastRemoteObject implements IOperation
     }
 
     private String addOperation(double left, double right, OperationType operationType) {
-        var host = "";
-        try {
-            host = getClientHost();
-            System.out.println(host);
-        } catch (ServerNotActiveException e) {
-            return "Eroare la obținerea adresei IP a clientului!";
-        }
-        var operation = Database.add(left, right, operationType, host);
+        var operation = Database.add(left, right, operationType);
         System.out.println(operation);
         return String.valueOf(operation.getResult());
     }
@@ -50,5 +43,33 @@ public class OperationsHandler extends UnicastRemoteObject implements IOperation
     public String getOperationInfo(int operationNumber) {
         Operation operation = Database.get(operationNumber);
         return operation != null ? operation.toString() : "Această operatie nu există!";
+    }
+
+    @Override
+    public void onMessage(Message message) {
+        try {
+            var text = ((TextMessage) message).getText();
+            System.out.println(text);
+            var response = getResponse(text);
+            try (var sender = session.createSender((TemporaryQueue) message.getJMSReplyTo())) {
+                sender.send(session.createTextMessage(response));
+            }
+        } catch (JMSException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private String getResponse(String text) {
+        var request = text.split(",");
+        var option = Integer.parseInt(request[0]);
+        System.out.println(option);
+
+        if (option == 5) {
+            return getOperationInfo(Integer.parseInt(request[1]));
+        } else {
+            var left = Double.parseDouble(request[1]);
+            var right = Double.parseDouble(request[2]);
+            return performOperation(option, left, right);
+        }
     }
 }

@@ -12,9 +12,9 @@ public class Database {
     private Database() {
     }
 
-    public static Operation add(double left, double right, OperationType operationType, String clientIp) {
+    public static synchronized Operation add(double left, double right, OperationType operationType) {
         var id = operations.size() + 1;
-        var operation = new Operation(id, left, right, operationType, clientIp);
+        var operation = new Operation(id, left, right, operationType);
         operations.add(operation);
         return operation;
     }

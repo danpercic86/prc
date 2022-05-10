@@ -9,5 +9,73 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="library" name="Java EE 6-Java EE 6" level="project" />
+    <orderEntry type="module-library">
+      <library>
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/../../../glassfish6/glassfish/lib/gf-client.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library>
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/../../../glassfish6/glassfish/lib/grizzly-npn-api.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library>
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/../../../glassfish6/glassfish/lib/appserv-rt.jar!/" />
+          <root url="jar://$MODULE_DIR$/../../../glassfish6/glassfish/lib/appserv-rt.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES>
+          <root url="jar://$MODULE_DIR$/../../../glassfish6/glassfish/lib/appserv-rt.jar!/" />
+        </SOURCES>
+        <jarDirectory url="jar://$MODULE_DIR$/../../../glassfish6/glassfish/lib/appserv-rt.jar!/" recursive="false" />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library>
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/../../../glassfish6/glassfish/lib/javaee.jar!/" />
+          <root url="jar://$MODULE_DIR$/../../../glassfish6/glassfish/lib/javaee.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES>
+          <root url="jar://$MODULE_DIR$/../../../glassfish6/glassfish/lib/javaee.jar!/" />
+        </SOURCES>
+        <jarDirectory url="jar://$MODULE_DIR$/../../../glassfish6/glassfish/lib/javaee.jar!/" recursive="false" />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library>
+        <CLASSES>
+          <root url="file://$MODULE_DIR$/../../../glassfish6/glassfish/modules" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES>
+          <root url="file://$MODULE_DIR$/../../../glassfish6/glassfish/modules" />
+        </SOURCES>
+        <jarDirectory url="file://$MODULE_DIR$/../../../glassfish6/glassfish/modules" recursive="false" />
+        <jarDirectory url="file://$MODULE_DIR$/../../../glassfish6/glassfish/modules" recursive="false" type="SOURCES" />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library>
+        <CLASSES>
+          <root url="file://$MODULE_DIR$/../../../glassfish6/glassfish/lib/install/applications/jmsra" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+        <jarDirectory url="file://$MODULE_DIR$/../../../glassfish6/glassfish/lib/install/applications/jmsra" recursive="false" />
+      </library>
+    </orderEntry>
   </component>
 </module>
